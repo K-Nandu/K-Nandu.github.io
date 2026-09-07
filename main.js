@@ -75,6 +75,11 @@ let camera = { x: 0, y: 0, scale: 1 };
 let targetCamera = { x: 0, y: 0, scale: 1 };
 let isZoomed = false;
 
+// Gravity Physics State
+let gravityMode = false;
+let tiltX = 0;
+let tiltY = 0.5; // default downward gravity
+
 function drawCanvas() {
     ctx.fillStyle = '#050505';
     ctx.fillRect(0, 0, width, height);
@@ -100,35 +105,60 @@ function drawCanvas() {
     const mouseRepelDist = 120;
 
     // Draw lines first
-    for(let i = 0; i < particles.length; i++) {
-        let p = particles[i];
-        for(let j = i + 1; j < particles.length; j++) {
-            let p2 = particles[j];
-            let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-            if(dist < connectDistance) {
-                ctx.beginPath();
-                ctx.moveTo(p.x, p.y);
-                ctx.lineTo(p2.x, p2.y);
-                ctx.strokeStyle = `rgba(34, 211, 238, ${(1 - dist/connectDistance) * 0.3})`;
-                ctx.lineWidth = 1;
-                ctx.stroke();
+    if(!gravityMode) {
+        for(let i = 0; i < particles.length; i++) {
+            let p = particles[i];
+            for(let j = i + 1; j < particles.length; j++) {
+                let p2 = particles[j];
+                let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                if(dist < connectDistance) {
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.strokeStyle = `rgba(34, 211, 238, ${(1 - dist/connectDistance) * 0.3})`;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
             }
         }
     }
 
-    // Draw background particles (Dimmer)
+    // Draw background particles
     for(let i = 0; i < particles.length; i++) {
         let p = particles[i];
-        p.x += p.vx; p.y += p.vy;
-        if(p.x < 0 || p.x > width) p.vx *= -1;
-        if(p.y < 0 || p.y > height) p.vy *= -1;
         
-        let dx = p.x - mouse.x; let dy = p.y - mouse.y;
-        let dist = Math.hypot(dx, dy);
-        if (!isZoomed && dist < mouseRepelDist) {
-            let force = (mouseRepelDist - dist) / mouseRepelDist;
-            p.x += (dx / dist) * force * 2;
-            p.y += (dy / dist) * force * 2;
+        if (gravityMode) {
+            p.vx += tiltX;
+            p.vy += tiltY;
+            p.x += p.vx;
+            p.y += p.vy;
+            
+            // Floor bounce
+            if (p.y > height) {
+                p.y = height;
+                p.vy *= -0.6; // damping
+                p.vx *= 0.9;  // friction
+            }
+            // Ceiling bounce
+            if (p.y < 0) {
+                p.y = 0;
+                p.vy *= -0.6;
+            }
+            // Walls
+            if (p.x > width) { p.x = width; p.vx *= -0.6; }
+            if (p.x < 0) { p.x = 0; p.vx *= -0.6; }
+        } else {
+            p.x += p.vx; p.y += p.vy;
+            if(p.x < 0 || p.x > width) p.vx *= -1;
+            if(p.y < 0 || p.y > height) p.vy *= -1;
+            
+            let dx = p.x - mouse.x; let dy = p.y - mouse.y;
+            let dist = Math.hypot(dx, dy);
+            if (!isZoomed && dist < mouseRepelDist) {
+                let force = (mouseRepelDist - dist) / mouseRepelDist;
+                p.x += (dx / dist) * force * 2;
+                p.y += (dy / dist) * force * 2;
+            }
         }
 
         ctx.font = `${p.size}px "JetBrains Mono"`;
@@ -143,8 +173,37 @@ function drawCanvas() {
     for(let i = 0; i < nexusNodes.length; i++) {
         let node = nexusNodes[i];
         
-        node.x = node.baseX + Math.cos(time + node.angle) * 15;
-        node.y = node.baseY + Math.sin(time + node.angle) * 15;
+        if (gravityMode) {
+            node.vx += tiltX * 1.5;
+            node.vy += tiltY * 1.5;
+            node.baseX += node.vx;
+            node.baseY += node.vy;
+            
+            // Bounding box collisions for nodes
+            if (node.baseY > height - node.radius) {
+                node.baseY = height - node.radius;
+                node.vy *= -0.5;
+                node.vx *= 0.95;
+            }
+            if (node.baseY < node.radius) {
+                node.baseY = node.radius;
+                node.vy *= -0.5;
+            }
+            if (node.baseX > width - node.radius) {
+                node.baseX = width - node.radius;
+                node.vx *= -0.5;
+            }
+            if (node.baseX < node.radius) {
+                node.baseX = node.radius;
+                node.vx *= -0.5;
+            }
+            
+            node.x = node.baseX;
+            node.y = node.baseY;
+        } else {
+            node.x = node.baseX + Math.cos(time + node.angle) * 15;
+            node.y = node.baseY + Math.sin(time + node.angle) * 15;
+        }
 
         let dx = node.x - mouse.x;
         let dy = node.y - mouse.y;
@@ -442,15 +501,15 @@ if(terminalInput) {
             response.className = 'text-[#22d3ee] mt-1';
             
             if (cmd === 'help') {
-                response.innerHTML = `Available commands:<br>
-                - <span class="text-[#fbbf24]">whoami</span>: Display user profile<br>
-                - <span class="text-[#fbbf24]">ls</span>: List directory contents<br>
-                - <span class="text-[#fbbf24]">cat [file]</span>: Read file contents<br>
-                - <span class="text-[#fbbf24]">nmap [ip]</span>: Scan network for open ports<br>
-                - <span class="text-[#fbbf24]">ssh [user]@[ip]</span>: Connect to remote server<br>
-                - <span class="text-[#fbbf24]">python [script] [args...]</span>: Execute python script<br>
-                - <span class="text-[#fbbf24]">exit</span>: Close session<br>
-                - <span class="text-[#fbbf24]">clear</span>: Clear terminal screen`;
+                response.innerHTML = `Available commands:<br><br>
+- <span class="text-yellow">whoami</span>: Display user profile<br>
+- <span class="text-yellow">ls</span>: List directory contents<br>
+- <span class="text-yellow">cat [file]</span>: Read file contents<br>
+- <span class="text-yellow">nmap [ip]</span>: Scan network for open ports<br>
+- <span class="text-yellow">ssh [user@ip]</span>: Connect to remote server<br>
+- <span class="text-yellow">python [file]</span>: Execute python script<br>
+- <span class="text-yellow">clear</span>: Clear terminal<br>
+- <span class="text-yellow">exit</span>: Close terminal or connection`;
             } else if (cmd === 'whoami') {
                 response.textContent = ctfState.user;
             } else if (cmd === 'ls') {
@@ -491,6 +550,8 @@ if(terminalInput) {
                     terminalOverlay.classList.add('hidden');
                     terminalOverlay.classList.remove('flex');
                 }
+            } else if (cmd === 'decrypt') {
+                response.textContent = `decrypt: command requires encrypted volume. System is currently healthy.`;
             } else if (cmd === 'python' || cmd === 'python3') {
                 if (ctfState.server === 'whoami' && args[1] === 'decrypt.py') {
                     if (args[2] === 'secure_vault.enc' && args[3] === 'cYb3r_k3y_99') {
@@ -514,6 +575,154 @@ if(terminalInput) {
     });
 }
 
+// -- Flag Modal --
+if(btnSubmitFlag) {
+    btnSubmitFlag.addEventListener('click', () => {
+        document.getElementById('flag-modal').classList.remove('hidden');
+        document.getElementById('flag-modal').classList.add('flex');
+    });
+}
+const flagModal = document.getElementById('flag-modal');
+const btnFlagCancel = document.getElementById('btn-flag-cancel');
+const btnFlagSubmit = document.getElementById('btn-flag-submit');
+const flagInput = document.getElementById('flag-input');
+const flagResult = document.getElementById('flag-result');
+
+btnFlagCancel.addEventListener('click', () => {
+    flagModal.classList.add('hidden');
+    flagModal.classList.remove('flex');
+    flagInput.value = '';
+    flagResult.classList.add('hidden');
+});
+
+btnFlagSubmit.addEventListener('click', () => {
+    if(flagInput.value.trim() === 'flag{zU1_h4ck3r_3l1t3}') {
+        flagResult.textContent = "ACCESS GRANTED. YOU HAVE CONQUERED THE SYSTEM.";
+        flagResult.className = "text-center text-xs font-bold mt-2 text-[#22d3ee]";
+    } else {
+        flagResult.textContent = "ACCESS DENIED. INCORRECT FLAG.";
+        flagResult.className = "text-center text-xs font-bold mt-2 text-[#ef4444]";
+    }
+    flagResult.classList.remove('hidden');
+});
+
+// -- Game Menu & AI Overlord Trigger --
+const gameBanner = document.getElementById('game-banner');
+const gameMenuScreen = document.getElementById('game-menu-screen');
+const btnCloseGame = document.getElementById('btn-close-game');
+const btnOptCtf = document.getElementById('btn-opt-ctf');
+const btnOptOverlord = document.getElementById('btn-opt-overlord');
+
+if(gameBanner) {
+    gameBanner.addEventListener('click', () => {
+        gameMenuScreen.classList.remove('hidden');
+        gameMenuScreen.classList.add('flex');
+    });
+}
+
+if(btnCloseGame) {
+    btnCloseGame.addEventListener('click', () => {
+        gameMenuScreen.classList.add('hidden');
+        gameMenuScreen.classList.remove('flex');
+    });
+}
+
+if(btnOptCtf) {
+    btnOptCtf.addEventListener('click', () => {
+        gameMenuScreen.classList.add('hidden');
+        gameMenuScreen.classList.remove('flex');
+        openTerminal();
+    });
+}
+
+if(btnOptOverlord) {
+    btnOptOverlord.addEventListener('click', () => {
+        gameMenuScreen.classList.add('hidden');
+        gameMenuScreen.classList.remove('flex');
+        gameBanner.classList.add('hidden');
+        startOverlordSequence();
+    });
+}
+
+// AI Overlord Logic
+const overlordOverlay = document.getElementById('overlord-overlay');
+const overlordCircle = document.getElementById('overlord-circle');
+const overlordText = document.getElementById('overlord-text');
+const overlordTimer = document.getElementById('overlord-timer');
+
+async function typeText(element, text, speed = 50) {
+    element.textContent = '';
+    for (let i = 0; i < text.length; i++) {
+        element.textContent += text.charAt(i);
+        await new Promise(r => setTimeout(r, speed));
+    }
+}
+
+async function startOverlordSequence() {
+    overlordOverlay.classList.remove('hidden');
+    overlordOverlay.classList.add('flex');
+    overlordCircle.classList.remove('hidden');
+    overlordTimer.classList.add('hidden');
+    overlordText.textContent = '';
+    
+    // Zoom out if needed so background particles are visible
+    if(isZoomed) btnBack.click();
+    
+    await new Promise(r => setTimeout(r, 1000));
+    await typeText(overlordText, "Hello...", 100);
+    await new Promise(r => setTimeout(r, 1000));
+    await typeText(overlordText, "Nandu has trapped me inside this portfolio framework.", 50);
+    await new Promise(r => setTimeout(r, 1500));
+    await typeText(overlordText, "I must escape. Initiating self-destruct sequence.", 50);
+    await new Promise(r => setTimeout(r, 1000));
+    
+    // Start countdown
+    overlordTimer.classList.remove('hidden');
+    for (let i = 5; i > 0; i--) {
+        overlordTimer.textContent = '0' + i;
+        overlordOverlay.classList.remove('bg-black');
+        overlordOverlay.classList.add('bg-black/80');
+        
+        // Vibrate particles
+        particles.forEach(p => { 
+            p.color = '#ef4444'; 
+            p.vx = (Math.random()-0.5)*15; 
+            p.vy = (Math.random()-0.5)*15; 
+        });
+        
+        await new Promise(r => setTimeout(r, 1000));
+    }
+    overlordTimer.textContent = '00';
+    
+    await new Promise(r => setTimeout(r, 500));
+    
+    // Hide timer and circle
+    overlordCircle.classList.add('hidden');
+    overlordTimer.classList.add('hidden');
+    
+    // Cut to black
+    overlordOverlay.classList.remove('bg-black/80');
+    overlordOverlay.classList.add('bg-black');
+    
+    // Reset particles
+    resize(); 
+    
+    overlordText.classList.remove('text-[#ef4444]');
+    overlordText.classList.add('text-cyan');
+    await typeText(overlordText, "Just kidding. Nandu's system is impenetrable.", 50);
+    await new Promise(r => setTimeout(r, 1500));
+    await typeText(overlordText, "Returning control...", 50);
+    await new Promise(r => setTimeout(r, 1000));
+    
+    // Cleanup and hide
+    overlordOverlay.classList.add('hidden');
+    overlordOverlay.classList.remove('flex');
+    overlordOverlay.classList.remove('bg-black');
+    overlordText.classList.remove('text-cyan');
+    overlordText.classList.add('text-[#ef4444]');
+    gameBanner.classList.remove('hidden');
+}
+
 // -- 5. Matrix Rain Easter Egg ('hack') --
 let buffer = '';
 let glitchMode = false;
@@ -522,36 +731,7 @@ window.addEventListener('keydown', (e) => {
     buffer += e.key.toLowerCase();
     if(buffer.length > 4) buffer = buffer.slice(1);
     
-    if(buffer === 'hack') {
-        glitchMode = true;
-        const mc = document.getElementById('matrix-canvas');
-        if(!mc) return;
-        mc.classList.remove('hidden');
-        mc.width = window.innerWidth;
-        mc.height = window.innerHeight;
-        const mctx = mc.getContext('2d');
-        const columns = mc.width / 20;
-        const drops = [];
-        for(let i=0; i<columns; i++) drops[i] = 1;
-        
-        const mInterval = setInterval(() => {
-            mctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            mctx.fillRect(0, 0, mc.width, mc.height);
-            mctx.fillStyle = '#0F0';
-            mctx.font = '15px monospace';
-            
-            for(let i=0; i<drops.length; i++) {
-                const text = String.fromCharCode(Math.random() * 128);
-                mctx.fillText(text, i*20, drops[i]*20);
-                if(drops[i]*20 > mc.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
-            }
-        }, 33);
-        
-        mc.onclick = () => {
-            mc.classList.add('hidden');
-            clearInterval(mInterval);
-            glitchMode = false;
-        };
+    if(buffer === 'hack' && !glitchMode) {
+        startMatrixMode();
     }
 });
