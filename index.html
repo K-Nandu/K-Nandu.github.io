@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>whoami_</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%23050505'/><text x='15' y='65' font-family='monospace' font-size='50' font-weight='bold' fill='%2322d3ee'>&gt;_</text></svg>">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#050505',
+            ink: '#e9e6f2',
+            violet: '#a78bfa',
+            cyan: '#22d3ee',
+            lavender: '#c4b5fd',
+            red: '#ff5568',
+            yellow: '#fbbf24',
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'monospace'],
+            sans: ['Inter', 'sans-serif']
+          },
+        },
+      },
+    };
+    </script>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-bg text-ink font-sans overflow-hidden fixed inset-0">
+    <!-- Background Canvas & Noise -->
+    <canvas id="bg-canvas" class="absolute inset-0 z-0"></canvas>
+    <div id="grain-overlay" class="absolute inset-0 z-[1] pointer-events-none opacity-30"></div>
+
+    <!-- Main Floating Hero -->
+    <div id="hero-center" class="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none transition-all duration-1000 p-4">
+        <h1 class="decrypt-text font-mono text-3xl sm:text-5xl md:text-7xl font-bold tracking-tight text-white glow-text text-center uppercase" data-value="NANDU KALIMERA">0101010</h1>
+        <p class="decrypt-text font-mono text-cyan mt-4 tracking-widest text-xs sm:text-sm md:text-base text-center uppercase" data-value="PROJECT ASSOCIATE">X0X0X0X</p>
+        <p class="mt-8 text-ink/40 font-mono text-[10px] animate-pulse">SELECT A NODE TO INTERACT</p>
+    </div>
+
+    <!-- Full Screen Content View -->
+    <div id="content-view" class="absolute inset-0 z-20 flex flex-col opacity-0 pointer-events-none transition-opacity duration-700">
+        
+        <!-- Top Nav (Back Button) -->
+        <div class="absolute top-4 left-4 md:top-6 md:left-6 z-30">
+            <button id="btn-back" class="text-cyan font-mono text-xs md:text-sm hover:text-white transition-all hover:translate-x-[-4px] flex items-center gap-2 tracking-widest bg-black/40 md:bg-transparent p-2 md:p-0 rounded-lg backdrop-blur-md md:backdrop-blur-none border border-white/10 md:border-transparent">
+                <span class="text-lg">&lt;</span> SYSTEM.ROOT
+            </button>
+        </div>
+
+        <!-- Mobile Terminal Button -->
+        <div class="absolute top-4 right-4 z-30 md:hidden">
+            <button id="mobile-terminal-btn" class="text-red font-mono text-xs tracking-widest bg-black/40 p-2 px-3 rounded-lg backdrop-blur-md border border-white/10 flex items-center gap-2">
+                >_ TERM
+            </button>
+        </div>
+
+        <!-- Content Sections Container -->
+        <div id="scroll-container" class="flex-1 w-full h-full custom-scrollbar">
+            
+            <!-- ABOUT (EDUCATION & CERTS) -->
+            <div id="section-about" class="content-section px-4">
+                <div class="glass-card max-w-3xl w-full p-6 md:p-8">
+                    <h2 class="font-mono text-2xl mb-6 text-lavender decrypt-text-panel" data-value="ABOUT_ME">________</h2>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-cyan font-mono text-sm tracking-widest mb-4 border-b border-white/10 pb-2">EDUCATION</h3>
+                            <div class="space-y-4">
+                                <div class="bg-white/[0.02] border border-white/5 p-4 rounded text-sm text-ink/80">
+                                    <div class="font-bold text-white mb-1">M.Tech, Cybersecurity Systems and Networks</div>
+                                    <div class="text-violet font-mono text-xs mb-2">Amrita University, Amritapuri, Kerala | 2024 – 2026</div>
+                                    <div class="text-xs text-ink/50 font-mono">GPA: 7.85</div>
+                                </div>
+                                <div class="bg-white/[0.02] border border-white/5 p-4 rounded text-sm text-ink/80">
+                                    <div class="font-bold text-white mb-1">B.Tech, Computer Science and Engineering (Cybersecurity)</div>
+                                    <div class="text-violet font-mono text-xs mb-2">VBIT, Hyderabad | 2020 – 2024</div>
+                                    <div class="text-xs text-ink/50 font-mono">GPA: 7.68</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-cyan font-mono text-sm tracking-widest mb-4 border-b border-white/10 pb-2">CERTIFICATIONS & LEADERSHIP</h3>
+                            <ul class="list-disc pl-5 text-sm text-ink/80 space-y-3 leading-relaxed">
+                                <li>Google Cybersecurity Professional Certificate (In Progress)</li>
+                                <li>Cybersecurity Essentials — Cisco Netacad</li>
+                                <li>AWS Academy Graduate: Cloud Foundations & Machine Learning Foundations</li>
+                                <li>Web Designer, ABHEDYA (Cybersecurity Forum, VBIT) — organized workshops, training 400+ students in ethical hacking and cybersecurity awareness.</li>
+                                <li>2nd place, Chronos Hackathon (50+ teams); active Capture-The-Flag (CTF) competitor.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Mobile Scroll Hint -->
+                <div class="mobile-scroll-hint font-mono text-[10px] tracking-widest flex flex-col items-center gap-1">
+                    <span>SCROLL FOR MORE</span>
+                    <span>v</span>
+                </div>
+            </div>
+
+            <!-- EXPERIENCE -->
+            <div id="section-experience" class="content-section px-4">
+                <div class="glass-card max-w-3xl w-full p-6 md:p-8">
+                    <h2 class="font-mono text-2xl mb-6 text-yellow decrypt-text-panel" data-value="EXPERIENCE">________</h2>
+                    <div class="space-y-6">
+                        <div class="bg-white/[0.02] border border-white/5 p-5 rounded">
+                            <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-2">
+                                <div class="font-bold text-white text-sm md:text-base">Project Associate | Amrita Centre for Cybersecurity Systems and Networks</div>
+                                <div class="text-xs text-ink/50 font-mono mt-1 md:mt-0">Jul 2026 – Present</div>
+                            </div>
+                            <ul class="list-disc pl-5 text-sm text-ink/70 leading-relaxed mt-3">
+                                <li>Researching Integration points to Contribute into ongoing IoT security Sandbox Project</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white/[0.02] border border-white/5 p-5 rounded">
+                            <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-2">
+                                <div class="font-bold text-white text-sm md:text-base">Technical Intern | Founder's Office, ParityBit Security</div>
+                                <div class="text-xs text-ink/50 font-mono mt-1 md:mt-0">Feb 2026 – May 2026</div>
+                            </div>
+                            <ul class="list-disc pl-5 text-sm text-ink/70 leading-relaxed mt-3 space-y-2">
+                                <li>Evaluated and documented threat intelligence platforms (OpenCTI, Prowler), assessing architecture, integrations, and detection capabilities for security use.</li>
+                                <li>Assessed dark web intelligence-gathering tools (DARC, TorBot, TorCrawl, OnionIngestor) to support threat identification; authored security research write-ups on emerging threats and tool evaluations.</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white/[0.02] border border-white/5 p-5 rounded">
+                            <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-2">
+                                <div class="font-bold text-white text-sm md:text-base">Cybersecurity Intern | AICTE & Palo Alto Cybersecurity Academy</div>
+                                <div class="text-xs text-ink/50 font-mono mt-1 md:mt-0">Mar 2022 – May 2022</div>
+                            </div>
+                            <ul class="list-disc pl-5 text-sm text-ink/70 leading-relaxed mt-3">
+                                <li>Trained in SOC workflows, alert triage, incident response, network security, and cloud security fundamentals through guided labs.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Mobile Scroll Hint -->
+                <div class="mobile-scroll-hint font-mono text-[10px] tracking-widest flex flex-col items-center gap-1">
+                    <span>v</span>
+                </div>
+            </div>
+
+            <!-- PROJECTS -->
+            <div id="section-projects" class="content-section px-4">
+                <div class="glass-card max-w-4xl w-full p-6 md:p-8">
+                    <h2 class="font-mono text-2xl mb-6 text-cyan decrypt-text-panel" data-value="ACADEMIC_PROJECTS">________</h2>
+                    <div class="space-y-6">
+                        
+                        <div class="bg-white/[0.02] border border-white/5 p-5 rounded">
+                            <h3 class="font-bold text-white text-sm md:text-base mb-2">A Semi-Supervised and Evasion-Aware Framework for Reducing Alert Fatigue in SOCs | ICICCS 2026</h3>
+                            <ul class="list-disc pl-5 text-sm text-ink/70 leading-relaxed space-y-2">
+                                <li>Built a semi-supervised SOC alert-triage framework using tri-training across calibrated LightGBM classifiers to address label scarcity, concept drift, and evasion.</li>
+                                <li>Achieved 99.81% attack recall on CICIDS2017 under a temporal split; validated with a proof-of-concept Wazuh SIEM integration to reduce analyst alert fatigue.</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white/[0.02] border border-white/5 p-5 rounded">
+                            <h3 class="font-bold text-white text-sm md:text-base mb-2">Identity-Centric Detection of Advanced Persistent Threats via Privilege Transition Graphs | ICICIT 2026</h3>
+                            <ul class="list-disc pl-5 text-sm text-ink/70 leading-relaxed space-y-2">
+                                <li>Built an identity-centric graph framework (Python, NetworkX) that detects lateral movement by scoring typed authentication paths across privilege transitions.</li>
+                                <li>Achieved PR-AUC 0.331 with 0.976 top-25 precision on the LANL dataset with real red-team labels, outperforming a supervised baseline (0.194) while fully unsupervised.</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white/[0.02] border border-white/5 p-5 rounded">
+                            <h3 class="font-bold text-white text-sm md:text-base mb-2">AI-Powered Intrusion Detection Systems for IoT Devices with Risk Scoring and Automated Response | IEEE iSES 2025</h3>
+                            <ul class="list-disc pl-5 text-sm text-ink/70 leading-relaxed space-y-2">
+                                <li>Proposed an IoT security framework integrating real-time threat detection, risk scoring, and automated response for resource-constrained devices.</li>
+                                <li>Explored on-device anomaly detection and risk-based enforcement to reduce false positives and improve detection efficiency.</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- Mobile Scroll Hint -->
+                <div class="mobile-scroll-hint font-mono text-[10px] tracking-widest flex flex-col items-center gap-1">
+                    <span>v</span>
+                </div>
+            </div>
+
+            <!-- SKILLS -->
+            <div id="section-skills" class="content-section px-4">
+                <div class="glass-card max-w-3xl w-full p-6 md:p-8">
+                    <h2 class="font-mono text-2xl mb-6 text-violet decrypt-text-panel" data-value="TECHNICAL_SKILLS">________</h2>
+                    <div class="space-y-6 text-sm text-ink/80">
+                        <div class="bg-white/[0.02] border border-white/5 p-5 rounded">
+                            <div class="font-mono text-cyan mb-2">SOC & Monitoring</div>
+                            <p class="leading-relaxed">Splunk, Wazuh, SIEM Log Analysis, Alert Triage, IDS/IPS, Incident Response (fundamentals)</p>
+                        </div>
+                        <div class="bg-white/[0.02] border border-white/5 p-5 rounded">
+                            <div class="font-mono text-cyan mb-2">Security Analysis</div>
+                            <p class="leading-relaxed">Threat Detection, Vulnerability Assessment, Risk Analysis, Network Traffic Analysis, Malware Analysis</p>
+                        </div>
+                        <div class="bg-white/[0.02] border border-white/5 p-5 rounded">
+                            <div class="font-mono text-cyan mb-2">Tools</div>
+                            <p class="leading-relaxed">Wireshark, Nmap, Burp Suite, Metasploit, Docker</p>
+                        </div>
+                        <div class="bg-white/[0.02] border border-white/5 p-5 rounded">
+                            <div class="font-mono text-cyan mb-2">Networking, OS & Programming</div>
+                            <p class="leading-relaxed">Windows, Linux (Kali, Ubuntu, Parrot OS) | Python, C</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Mobile Scroll Hint -->
+                <div class="mobile-scroll-hint font-mono text-[10px] tracking-widest flex flex-col items-center gap-1">
+                    <span>v</span>
+                </div>
+            </div>
+            
+            <!-- CONTACT -->
+            <div id="section-contact" class="content-section px-4">
+                <div class="glass-card max-w-xl w-full p-6 md:p-8 flex flex-col items-center text-center">
+                    <h2 class="font-mono text-2xl mb-2 text-red decrypt-text-panel" data-value="COMM_LINK">_________</h2>
+                    <p class="text-xs text-ink/50 mb-8 font-mono uppercase">NANDU KALIMERA</p>
+                    
+                    <div class="w-full space-y-4 mb-2 text-sm">
+                        <a href="mailto:knandugoud1234@gmail.com" class="block p-4 border border-white/5 bg-black/20 rounded hover:border-cyan/40 hover:bg-cyan/5 transition-colors font-mono">
+                            <span class="text-cyan block text-[10px] mb-1">EMAIL</span>
+                            knandugoud1234@gmail.com
+                        </a>
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <a href="https://linkedin.com" target="_blank" class="flex-1 p-4 border border-white/5 bg-black/20 rounded hover:border-cyan/40 hover:bg-cyan/5 transition-colors font-mono block">
+                                <span class="text-cyan block text-[10px] mb-1">LINKEDIN</span>
+                                LinkedIn
+                            </a>
+                            <a href="https://github.com" target="_blank" class="flex-1 p-4 border border-white/5 bg-black/20 rounded hover:border-cyan/40 hover:bg-cyan/5 transition-colors font-mono block">
+                                <span class="text-cyan block text-[10px] mb-1">GITHUB</span>
+                                GitHub
+                            </a>
+                        </div>
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="flex-1 p-4 border border-white/5 bg-black/20 rounded font-mono">
+                                <span class="text-cyan block text-[10px] mb-1">PHONE</span>
+                                +91 9110794701
+                            </div>
+                            <div class="flex-1 p-4 border border-white/5 bg-black/20 rounded font-mono">
+                                <span class="text-cyan block text-[10px] mb-1">LOCATION</span>
+                                Hyderabad, Telangana, India
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Desktop Bottom Nav Bar -->
+        <nav id="desktop-bottom-nav" class="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 glass-card !rounded-full px-4 py-3 hidden md:flex gap-6 border border-white/10 w-auto">
+            <button class="nav-btn-bottom text-xs font-mono tracking-widest px-3 py-2 rounded text-ink/50 hover:text-cyan hover:bg-white/5 transition-all whitespace-nowrap" data-target="about">ABOUT</button>
+            <button class="nav-btn-bottom text-xs font-mono tracking-widest px-3 py-2 rounded text-ink/50 hover:text-cyan hover:bg-white/5 transition-all whitespace-nowrap" data-target="experience">EXPERIENCE</button>
+            <button class="nav-btn-bottom text-xs font-mono tracking-widest px-3 py-2 rounded text-ink/50 hover:text-cyan hover:bg-white/5 transition-all whitespace-nowrap" data-target="projects">PROJECTS</button>
+            <button class="nav-btn-bottom text-xs font-mono tracking-widest px-3 py-2 rounded text-ink/50 hover:text-cyan hover:bg-white/5 transition-all whitespace-nowrap" data-target="skills">SKILLS</button>
+            <button class="nav-btn-bottom text-xs font-mono tracking-widest px-3 py-2 rounded text-ink/50 hover:text-cyan hover:bg-white/5 transition-all whitespace-nowrap" data-target="contact">CONTACT</button>
+            <div class="w-px h-4 bg-white/20 self-center"></div>
+            <button class="text-xs font-mono tracking-widest px-3 py-2 rounded text-red hover:text-white hover:bg-red/20 transition-all whitespace-nowrap" id="desktop-terminal-btn">>_ TERM</button>
+        </nav>
+    </div>
+
+    <!-- Floating Action Widgets -->
+    <a href="resume.pdf" target="_blank" class="absolute bottom-6 left-6 md:bottom-10 md:left-10 z-[25] flex flex-col items-center gap-2 group hover:-translate-y-2 transition-all cursor-pointer pointer-events-auto">
+        <div class="relative w-14 h-14">
+            <!-- Animated spinning rings -->
+            <div class="absolute inset-0 border-2 border-t-cyan border-r-cyan border-b-transparent border-l-transparent rounded-full animate-[spin_4s_linear_infinite]"></div>
+            <div class="absolute inset-0 border-2 border-b-cyan/40 border-l-cyan/40 border-t-transparent border-r-transparent rounded-full animate-[spin_3s_linear_infinite_reverse]"></div>
+            <!-- Core icon -->
+            <div class="absolute inset-2 bg-cyan/10 rounded-full flex items-center justify-center text-xl shadow-[0_0_15px_rgba(34,211,238,0.4)] group-hover:bg-cyan/30 transition-colors">
+                📄
+            </div>
+        </div>
+        <span class="text-cyan font-mono text-[10px] tracking-widest bg-black/60 px-2 py-1 rounded border border-cyan/20">RESUME.PDF</span>
+    </a>
+
+    <button id="btn-submit-flag" class="absolute bottom-6 right-6 md:bottom-10 md:right-10 z-[25] flex flex-col items-center gap-2 group hover:-translate-y-2 transition-all cursor-pointer pointer-events-auto">
+        <div class="relative w-14 h-14">
+            <!-- Animated scanning radar effect -->
+            <div class="absolute inset-0 border-2 border-dashed border-red/60 rounded-full animate-[spin_5s_linear_infinite]"></div>
+            <div class="absolute inset-0 rounded-full animate-ping opacity-20 bg-red"></div>
+            <!-- Core icon -->
+            <div class="absolute inset-2 bg-red/10 rounded-full flex items-center justify-center text-xl shadow-[0_0_15px_rgba(255,85,104,0.4)] group-hover:bg-red/30 transition-colors">
+                🚩
+            </div>
+        </div>
+        <span class="text-red font-mono text-[10px] tracking-widest bg-black/60 px-2 py-1 rounded border border-red/20">SUBMIT_FLAG</span>
+    </button>
+
+    <!-- Hidden Terminal Overlay -->
+    <div id="terminal-overlay" class="absolute inset-0 z-50 hidden bg-bg/90 backdrop-blur-md flex flex-col items-center justify-center p-4 pointer-events-auto">
+        <div class="w-full max-w-2xl h-[70vh] flex flex-col bg-[#050505] border border-cyan/20 rounded-lg shadow-[0_0_50px_rgba(34,211,238,0.15)] overflow-hidden font-mono text-sm">
+            <div class="bg-white/5 px-4 py-3 border-b border-white/20 flex items-center justify-between">
+                <div class="flex gap-2">
+                    <span class="w-3 h-3 rounded-full bg-red"></span>
+                    <span class="w-3 h-3 rounded-full bg-yellow"></span>
+                    <span class="w-3 h-3 rounded-full bg-cyan"></span>
+                </div>
+                <span class="text-ink/60 text-[10px] md:text-xs tracking-widest">root@whoami:~</span>
+                <button id="close-terminal" class="text-ink/40 hover:text-white px-2">✕</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 text-cyan custom-scrollbar" id="terminal-output">
+                <div class="text-lavender">Welcome to OS v6.0. Secure connection established.</div>
+                <div>Type 'help' for available commands.</div>
+            </div>
+            <div class="border-t border-white/20 p-3 flex items-center bg-white/5">
+                <span class="text-cyan mr-2" id="terminal-prompt">root@whoami:~$</span>
+                <input type="text" id="terminal-input" class="flex-1 bg-transparent outline-none text-white" autocomplete="off" spellcheck="false">
+            </div>
+        </div>
+    </div>
+
+    <canvas id="matrix-canvas" class="absolute inset-0 z-[100] hidden cursor-pointer"></canvas>
+
+    <script src="main.js"></script>
+</body>
+</html>
