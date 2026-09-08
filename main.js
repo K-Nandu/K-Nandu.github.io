@@ -309,6 +309,9 @@ window.addEventListener('mousemove', (e) => {
 });
 
 function openSection(targetId, nodeX, nodeY) {
+    if (!isZoomed) {
+        history.pushState({ zoomed: true }, "", "#" + targetId);
+    }
     isZoomed = true;
     
     targetCamera.scale = 4;
@@ -395,7 +398,8 @@ sections.forEach(sec => scrollObserver.observe(sec));
 
 
 // Back Button (Zoom out)
-btnBack.addEventListener('click', () => {
+function zoomOut() {
+    if (!isZoomed) return;
     isZoomed = false;
     
     contentView.style.opacity = '0';
@@ -410,6 +414,21 @@ btnBack.addEventListener('click', () => {
         heroCenter.style.opacity = '1';
         heroCenter.style.transform = 'scale(1)';
     }, 300);
+}
+
+btnBack.addEventListener('click', () => {
+    if (history.state && history.state.zoomed) {
+        history.back(); // Triggers popstate which calls zoomOut()
+    } else {
+        zoomOut();
+    }
+});
+
+// Hardware Back Button
+window.addEventListener('popstate', (e) => {
+    if (isZoomed && (!e.state || !e.state.zoomed)) {
+        zoomOut();
+    }
 });
 
 
@@ -705,7 +724,7 @@ async function startOverlordSequence() {
     overlordOverlay.classList.add('bg-black');
     
     // Reset particles
-    resize(); 
+    initCanvas(); 
     
     overlordText.classList.remove('text-[#ef4444]');
     overlordText.classList.add('text-cyan');
